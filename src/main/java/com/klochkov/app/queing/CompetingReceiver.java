@@ -1,14 +1,12 @@
 package com.klochkov.app.queing;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.rabbitmq.client.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
-import com.rabbitmq.client.ConsumerCancelledException;
-import com.rabbitmq.client.QueueingConsumer;
-import com.rabbitmq.client.ShutdownSignalException;
 
 /**
  * Created by georgyklochkov on 16/10/16.
@@ -38,19 +36,31 @@ public class CompetingReceiver {
         }
     }
 
-    public String receive() {
+    public List<String> receive() {
         if (channel == null) {
             initialize();
         }
         String message = null;
+        ArrayList<String> result = new ArrayList<String>();
         try {
             channel.queueDeclare(QUEUE_NAME, false, false, false, null);
-            QueueingConsumer consumer = new QueueingConsumer(channel);
+/*            QueueingConsumer consumer = new QueueingConsumer(channel);
+            //TODO somewhere here is a problem with getting too much messages
             channel.basicConsume(QUEUE_NAME, true, consumer);
-            QueueingConsumer.Delivery delivery = consumer.nextDelivery();
-            message = new String(delivery.getBody());
+
+            QueueingConsumer.Delivery delivery = consumer.nextDelivery(10000);
+            if(delivery == null)return result;
+            System.out.println("Delivery is " + delivery);*/
+            GetResponse response = channel.basicGet(QUEUE_NAME,false);
+            if(response == null){
+                LOGGER.info("No message received from " + QUEUE_NAME);
+            }else{
+                message = new String(response.getBody());
+            }
+//            message = new String(delivery.getBody());
+            result.add(message);
             LOGGER.info("Message received: " + message);
-            return message;
+            return result;
 
         } catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
@@ -58,10 +68,10 @@ public class CompetingReceiver {
             LOGGER.error(e.getMessage(), e);
         } catch (ConsumerCancelledException e) {
             LOGGER.error(e.getMessage(), e);
-        } catch (InterruptedException e) {
+        }/* catch (InterruptedException e) {
             LOGGER.error(e.getMessage(), e);
-        }
-        return message;
+        }*/
+        return result;
     }
 
     public void destroy() {

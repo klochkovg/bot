@@ -9,9 +9,11 @@ import com.klochkov.app.queing.PublishSubscribeReceiverDemo;
 import com.klochkov.app.queing.Sender;
 
 import com.klochkov.app.imaging.Resizer;
+import com.klochkov.app.upload.Uploader;
 import com.rabbitmq.client.AMQP;
 
 import javax.annotation.Resource;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -69,16 +71,19 @@ public class Main{
 			System.out.println("  resize   Resize next images from the queue");
 			System.out.println("  status   Output current status in format %queue%:%number_of_images%");
 			System.out.println("  upload   Upload next images to remove storage ");
-		}else if(commandNames.get(0).equals("schedule")) {
-			System.out.println("Scheduler called");
-		}else if(commandNames.get(0).equals("status")){
+		}else if(commandNames.get(0).equals("status")) {
 			status();
-		}else if(commandNames.equals("send")){
-			if(args.length>=2){
+		}else if(commandNames.get(0).equals("schedule")){
+			schedule();
+		}else if(commandNames.get(0).equals("send")) {
+			if (args.length >= 2) {
 				sendData(args[1]);
-			}else {
+			} else {
 				sendData("Data to send");
 			}
+		}else if(commandNames.get(0).equals("resize")){
+			resize();
+
 		}else if(commandNames.get(0).equals("receive")){
 			receive();
 		}else if(commandNames.get(0).equals("fanout") ){
@@ -87,6 +92,8 @@ public class Main{
 			PublishSubscribeReceiverDemo.execute();
 		}else if(commandNames.get(0).equals("imager")){
 			Resizer.process("tmp.jpg",640,640);
+		}else if(commandNames.get(0).equals("upload")){
+			Uploader.uploadTest("tmp.jpg");
 		}
 
 
@@ -97,39 +104,34 @@ public class Main{
 
 
 	private void schedule(){
-		ArrayList<String> filesList = new ArrayList<String>();
-		for(int i = 1; i < commandNames.size(); i++){
-			filesList.add(commandNames.get(i));
+		String pathToDirectoy = commandNames.get(1);
+
+		if(pathToDirectoy == null) {
+			System.out.println("Directory path is not given");
+			return;
 		}
-		//Initially I'm trying to use a point to point way
-		Sender sender = new Sender();
-		sender.initialize();
-		for(String element: filesList){
-			//TODO I have to add content of actual files, not some content like now
-			sender.send(RESIZE_QUEUE,element);
+		File dir = new File(pathToDirectoy);
+		File[] files = dir.listFiles();
+		for(File file: files){
+			if(!file.getName().startsWith(".")) {
+				System.out.println("File to schedule: " + file.getName());
+				sendData(file.getName());
+			}
 		}
-		sender.destroy();
+
 	}
 
 	private void resize(){
 		//TODO I have to process number of iterations and receive all existing and exit if number of iterations greater than in queue
-		try {
-			final CompetingReceiver receiver1 = new CompetingReceiver("receive");
-			receiver1.initialize();
+		final CompetingReceiver receiver1 = new CompetingReceiver(RESIZE_QUEUE);
+		receiver1.initialize();
+		for(int i = 0; i < count; i++) {
+			for(String element: receiver1.receive()) {
+				System.out.println("File " + element + " is ready for processing");
+			}
+        }
 
-			Thread t1 = new Thread(new Runnable() {
-				public void run() {
-					for(int i = 0; i < count; i++) {
-						receiver1.receive();
-					}
-				}
-			});
-			t1.start();
-			t1.join();
-			receiver1.destroy();
-		}catch(InterruptedException ex){
-			ex.printStackTrace();
-		}
+		receiver1.destroy();
 	}
 
 
