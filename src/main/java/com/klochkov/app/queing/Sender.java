@@ -3,6 +3,7 @@ package com.klochkov.app.queing;
 import java.io.IOException;
 
 
+import com.klochkov.app.config.Config;
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
@@ -23,7 +24,7 @@ public class Sender {
     public void initialize(){
         try {
             ConnectionFactory factory = new ConnectionFactory();
-            factory.setHost("localhost");
+            factory.setHost(Config.getQueueHost());
             connection = factory.newConnection();
             channel = connection.createChannel();
         } catch (IOException e) {
@@ -33,7 +34,7 @@ public class Sender {
     //For point to point
     public void send(String queueName, String message) {
         try {
-            LOGGER.info("Sending");
+            LOGGER.info("Sending message " + message);
             channel.queueDeclare(queueName, false, false, false, null);
             channel.basicPublish(DEFAULT_EXCHANGE, queueName, null,message.getBytes());
         } catch (IOException e) {
@@ -60,20 +61,8 @@ public class Sender {
             return meta.getMessageCount();
         }catch(IOException e){
             LOGGER.error(e.getMessage(),e);
-            //TODO May be I have to put some more adequate processing
         }
         return result;
-    }
-
-    //for publish subscribe
-    public void send(String exchange, String type, String message) {
-        try {
-            channel.exchangeDeclare(exchange, type);
-            channel.basicPublish(exchange, "", null,
-                    message.getBytes());
-        } catch (IOException e) {
-            LOGGER.error(e.getMessage(), e);
-        }
     }
 
     public void destroy() {

@@ -11,7 +11,7 @@ import java.io.File;
  * Created by georgyklochkov on 16/10/16.
  */
 public class Resizer {
-    public static BufferedImage process(String filePath, int w, int h) {
+    public static BufferedImage process(String filePath, String tmpPath, int w, int h) {
 
 
         String data = filePath;
@@ -31,13 +31,10 @@ public class Resizer {
             g.setPaint(new Color(255,255,255));
             g.fillRect(0,0,w,h);
             double longest = bsrc.getWidth() > bsrc.getHeight() ? bsrc.getWidth() : bsrc.getHeight();
-            //This operation doesn't fill with white to the square
             AffineTransform at = AffineTransform.getScaleInstance((double) w / longest,
                     (double) h / longest);
             g.drawRenderedImage(bsrc, at);
-            //if(bsrc.getWidth() > bsrc.getWidth())
-
-            ImageIO.write(bdest,"JPG",new File("output.jpg"));
+            ImageIO.write(bdest,"JPG",new File(tmpPath));
             return bdest;
         }
         catch (Exception e)

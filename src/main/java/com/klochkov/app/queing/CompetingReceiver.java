@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.klochkov.app.config.Config;
 import com.rabbitmq.client.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +29,7 @@ public class CompetingReceiver {
     public void initialize() {
         try {
             ConnectionFactory factory = new ConnectionFactory();
-            factory.setHost("localhost");
+            factory.setHost(Config.getQueueHost());
             connection = factory.newConnection();
             channel = connection.createChannel();
         } catch (IOException e) {
@@ -36,29 +37,22 @@ public class CompetingReceiver {
         }
     }
 
-    public List<String> receive() {
+    public String receive() {
         if (channel == null) {
             initialize();
         }
         String message = null;
-        ArrayList<String> result = new ArrayList<String>();
+        String result = null;
         try {
             channel.queueDeclare(QUEUE_NAME, false, false, false, null);
-/*            QueueingConsumer consumer = new QueueingConsumer(channel);
-            //TODO somewhere here is a problem with getting too much messages
-            channel.basicConsume(QUEUE_NAME, true, consumer);
+            GetResponse response = channel.basicGet(QUEUE_NAME,true);
 
-            QueueingConsumer.Delivery delivery = consumer.nextDelivery(10000);
-            if(delivery == null)return result;
-            System.out.println("Delivery is " + delivery);*/
-            GetResponse response = channel.basicGet(QUEUE_NAME,false);
             if(response == null){
                 LOGGER.info("No message received from " + QUEUE_NAME);
             }else{
                 message = new String(response.getBody());
             }
-//            message = new String(delivery.getBody());
-            result.add(message);
+            result = message;
             LOGGER.info("Message received: " + message);
             return result;
 
@@ -68,9 +62,7 @@ public class CompetingReceiver {
             LOGGER.error(e.getMessage(), e);
         } catch (ConsumerCancelledException e) {
             LOGGER.error(e.getMessage(), e);
-        }/* catch (InterruptedException e) {
-            LOGGER.error(e.getMessage(), e);
-        }*/
+        }
         return result;
     }
 

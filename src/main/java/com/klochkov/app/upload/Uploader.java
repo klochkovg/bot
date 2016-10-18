@@ -5,26 +5,35 @@ import java.io.IOException;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
-import com.amazonaws.auth.profile.ProfileCredentialsProvider;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.klochkov.app.config.Config;
 
 /**
  * Created by georgyklochkov on 17/10/16.
  */
 public class Uploader {
 
-    private static String bucketName     = "klochkovgbotimages";
-    private static String keyName        = "tmpjpg";
+    private static String bucketName     = Config.getBucketName();
+    private static String keyName        = "tmp.jpg";
     private static String uploadFileName = "tmp.jpg";
+    private static AmazonS3 s3client = null;
 
-    public static void uploadTest(String fileName){
-        keyName = fileName;
+    public static void initialize(){
+        BasicAWSCredentials awsCreds = new BasicAWSCredentials(Config.getAws_access_key_id(), Config.getAws_secret_access_key());
+        s3client = AmazonS3ClientBuilder.standard()
+                .withCredentials(new AWSStaticCredentialsProvider(awsCreds)).withRegion(Regions.EU_CENTRAL_1)
+                .build();
+    }
+
+    public static void uploadTest(String fileName, String destName){
+        keyName = destName;
         uploadFileName = fileName;
-        AmazonS3 s3client = new AmazonS3Client(new ProfileCredentialsProvider());
         try {
-            System.out.println("Uploading a new object to S3 from a file\n");
             File file = new File(uploadFileName);
             s3client.putObject(new PutObjectRequest(
                     bucketName, keyName, file));
