@@ -30,9 +30,10 @@ public class Uploader {
                 .build();
     }
 
-    public static void uploadTest(String fileName, String destName){
+    public static boolean uploadTest(String fileName, String destName){
         keyName = destName;
         uploadFileName = fileName;
+        System.out.println("Attempt to send data");
         try {
             File file = new File(uploadFileName);
             s3client.putObject(new PutObjectRequest(
@@ -48,6 +49,7 @@ public class Uploader {
             System.out.println("AWS Error Code:   " + ase.getErrorCode());
             System.out.println("Error Type:       " + ase.getErrorType());
             System.out.println("Request ID:       " + ase.getRequestId());
+            return false;
         } catch (AmazonClientException ace) {
             System.out.println("Caught an AmazonClientException, which " +
                     "means the client encountered " +
@@ -55,6 +57,8 @@ public class Uploader {
                     "communicate with S3, " +
                     "such as not being able to access the network.");
             System.out.println("Error Message: " + ace.getMessage());
+            return false;
         }
+        return true;
     }
 }

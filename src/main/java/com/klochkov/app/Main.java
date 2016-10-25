@@ -116,9 +116,13 @@ public class Main{
 				File ef = new File(element);
 				if(ef.exists()) {
 					String destFileName = destinationDir + File.separator + ef.getName();
-					Resizer.process(element, destFileName, 640, 640);
-					sendUpload((new File(destFileName)).getAbsolutePath());
-					ef.delete();
+					if(Resizer.process(element, destFileName, 640, 640)){
+						sendUpload((new File(destFileName)).getAbsolutePath());
+						ef.delete();
+					}else{
+						sendFailed(element);
+					}
+
 				}else{
 					sendFailed(element);
 				}
@@ -140,9 +144,12 @@ public class Main{
 			String element = receiver1.receive();
 			File file = new File(element);
 			if(file.exists()) {
-				Uploader.uploadTest(element, file.getName());
-				file.delete();
-				sendDone(element);
+				if(Uploader.uploadTest(element, file.getName())){
+					file.delete();
+					sendDone(element);
+				}else{
+					sendFailed(element);
+				}
 			}else{
 				sendFailed(element);
 			}

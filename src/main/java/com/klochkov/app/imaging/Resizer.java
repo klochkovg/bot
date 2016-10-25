@@ -11,7 +11,7 @@ import java.io.File;
  * Created by georgyklochkov on 16/10/16.
  */
 public class Resizer {
-    public static BufferedImage process(String filePath, String tmpPath, int w, int h) {
+    public static boolean process(String filePath, String tmpPath, int w, int h) {
 
 
         String data = filePath;
@@ -35,12 +35,12 @@ public class Resizer {
                     (double) h / longest);
             g.drawRenderedImage(bsrc, at);
             ImageIO.write(bdest,"JPG",new File(tmpPath));
-            return bdest;
+            return true;
         }
         catch (Exception e)
         {
             System.out.println("This image can not be resized. Please check the path and type of file.");
-            return null;
+            return false;
         }
 
     }
