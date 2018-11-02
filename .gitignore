@@ -1,0 +1,12 @@
+.idea
+.gradle
+build
+gradle
+gradlew
+target
+gradlew.bat
+build.gradle
+config.json
+pom.xml
+README.md
+settings.gradle

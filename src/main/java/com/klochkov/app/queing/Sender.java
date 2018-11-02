@@ -1,6 +1,7 @@
 package com.klochkov.app.queing;
 
 import java.io.IOException;
+import java.util.concurrent.TimeoutException;
 
 
 import com.klochkov.app.config.Config;
@@ -27,7 +28,7 @@ public class Sender {
             factory.setHost(Config.getQueueHost());
             connection = factory.newConnection();
             channel = connection.createChannel();
-        } catch (IOException e) {
+        } catch (TimeoutException |IOException e) {
             LOGGER.error(e.getMessage(), e);
         }
     }

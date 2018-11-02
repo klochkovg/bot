@@ -3,6 +3,7 @@ package com.klochkov.app.queing;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 
 import com.klochkov.app.config.Config;
 import com.rabbitmq.client.*;
@@ -30,9 +31,10 @@ public class CompetingReceiver {
         try {
             ConnectionFactory factory = new ConnectionFactory();
             factory.setHost(Config.getQueueHost());
-            connection = factory.newConnection();
+            connection = factory.newConnection();//newConnection();
             channel = connection.createChannel();
-        } catch (IOException e) {
+
+        } catch (TimeoutException |IOException e) {
             LOGGER.error(e.getMessage(), e);
         }
     }
