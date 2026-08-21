@@ -15,7 +15,7 @@ import java.io.IOException;
  */
 public class Config {
 
-    private static String bucketName = "klochkovgbotimages";
+    private static String bucketName = "defaultbucket";
     private static String sourceDirectoryName;
     private static String resizeDirectoryName = "tmpDir";
     private static String aws_access_key_id = null;
