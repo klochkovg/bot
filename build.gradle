@@ -1,13 +1,14 @@
 apply plugin: 'java'
-apply plugin: 'maven'
 
 group = 'com.klochkov.ap'
 version = '0.1-SNAPSHOT'
 
 description = """"""
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
 
 
 
@@ -16,11 +17,11 @@ repositories {
      maven { url "https://repo.maven.apache.org/maven2" }
 }
 dependencies {
-    compile group: 'com.rabbitmq', name: 'amqp-client', version:'4.8.0'
-    compile group: 'org.slf4j', name: 'slf4j-api', version:'1.7.12'
-    compile group: 'org.slf4j', name: 'slf4j-simple', version:'1.7.21'
-    compile group: 'com.beust', name: 'jcommander', version:'1.48'
-    compile group: 'com.amazonaws', name: 'aws-java-sdk', version:'1.11.43'
-    compile group: 'com.googlecode.json-simple', name: 'json-simple', version:'1.1'
-    testCompile group: 'junit', name: 'junit', version:'3.8.1'
+    implementation group: 'com.rabbitmq', name: 'amqp-client', version:'4.8.0'
+    implementation group: 'org.slf4j', name: 'slf4j-api', version:'1.7.12'
+    implementation group: 'org.slf4j', name: 'slf4j-simple', version:'1.7.21'
+    implementation group: 'com.beust', name: 'jcommander', version:'1.48'
+    implementation group: 'com.amazonaws', name: 'aws-java-sdk', version:'1.11.43'
+    implementation group: 'com.googlecode.json-simple', name: 'json-simple', version:'1.1'
+    testImplementation group: 'junit', name: 'junit', version:'3.8.1'
 }
