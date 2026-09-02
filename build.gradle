@@ -17,7 +17,7 @@ repositories {
      maven { url "https://repo.maven.apache.org/maven2" }
 }
 dependencies {
-    implementation group: 'com.rabbitmq', name: 'amqp-client', version:'4.8.0'
+    implementation group: 'com.rabbitmq', name: 'amqp-client', version:'5.33.1'
     implementation group: 'org.slf4j', name: 'slf4j-api', version:'1.7.12'
     implementation group: 'org.slf4j', name: 'slf4j-simple', version:'1.7.21'
     implementation group: 'com.beust', name: 'jcommander', version:'1.48'
